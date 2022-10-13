@@ -40,7 +40,7 @@ for buttery smooth movement.
 
 Here is a video of my progress.
 
-[Video](./initial_aiming.mp4)
+[<img src="./initial_aiming.gif">](./initial_aiming.mp4)
 
 
 #### Rewritten
@@ -49,7 +49,7 @@ Thanks to the `Roll A Ball` Assignment, I have learned much more about how Unity
 
 The new tank controller, which is only present in a separate project and not yet merged into this one, does a much better job at rotating the tank turret and barrel.
 
-[Video](./improved_aiming.mp4)
+[<img src="./improved_aiming.gif">](./improved_aiming.mp4)
 
 The source code for this is attached [here](./improved_aiming.cs).
 

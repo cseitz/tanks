@@ -19,7 +19,7 @@
 		"**/*.mid":true,
 		"**/*.midi":true,
 		"**/*.wav":true,
-		"**/*.gif":true,
+		"**/*.gif":false,
 		"**/*.ico":true,
 		"**/*.jpg":true,
 		"**/*.jpeg":true,
@@ -51,7 +51,8 @@
 		"library/":true,
 		"obj/":true,
 		"Obj/":true,
-		"ProjectSettings/":true,		"temp/":true,
+		"ProjectSettings/":true,
+		"temp/":true,
 		"Temp/":true
 	}
 }
