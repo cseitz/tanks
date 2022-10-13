@@ -52,9 +52,9 @@ public class PlayerMovement : MonoBehaviour
         float moveVertical = Input.GetAxis("Vertical");
         // Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
         Vector3 movement = new Vector3(0.0f, 0.0f, moveVertical);
-        rb.AddForce(movement * speed);
-        Vector3 torque = new Vector3(0.0f, moveHorizontal, moveVertical);
-        rb.AddTorque(torque * speed);
+        rb.AddRelativeForce(movement * speed);
+        Vector3 torque = new Vector3(0.0f, moveHorizontal, 0.0f);
+        rb.AddRelativeTorque(torque * speed);
         
 
         float x = 5 * Input.GetAxis("Mouse X");
