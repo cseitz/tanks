@@ -10,11 +10,11 @@ using Cinemachine;
 
 public class TankController : MonoBehaviour
 {
-    // public Transform virtualCamera;
 
     [System.NonSerialized] public TankControllerState state;
     [System.NonSerialized] public TankConfig config;
 
+    private CinemachineBrain brainVirtualCamera;
     private CinemachineVirtualCamera virtualCamera;
 
     // Start is called before the first frame update
@@ -22,10 +22,20 @@ public class TankController : MonoBehaviour
     {
         state = GetComponent<TankControllerState>();
         config = GetComponent<TankConfig>();
+
+        brainVirtualCamera = Camera.main.GetComponent<CinemachineBrain>();
+        try {
+            if (brainVirtualCamera != null && brainVirtualCamera.ActiveVirtualCamera != null) {
+                if (brainVirtualCamera.ActiveVirtualCamera.VirtualCameraGameObject != null) {
+                    virtualCamera = brainVirtualCamera.ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
+                }
+            }
+        } catch(UnityException err) {
+        }
     }
 
     bool Ready() {
-        if (!state) {
+        if (!state || !brainVirtualCamera || brainVirtualCamera.ActiveVirtualCamera == null) {
             Start();
             return false;
         }
@@ -38,6 +48,15 @@ public class TankController : MonoBehaviour
 
         float iVertical = Input.GetAxis("Vertical");
         float iHorizontal = Input.GetAxis("Horizontal");
+        
+        float dotP = Vector3.Dot(transform.forward.normalized, Camera.main.gameObject.transform.position.normalized);
+        if (Mathf.Abs(state.currentSpeed / config.maxSpeed) <= 0.1f) {
+            state.invertedThrottle = dotP > 0.6f;
+            // print(state.invertedThrottle);
+        }
+        if (state.invertedThrottle) {
+            iVertical = -iVertical;
+        }
 
         if (state.currentSpeed > config.maxSpeed) iVertical = 0f;
         state.currentAcceleration = config.acceleration * iVertical;
@@ -75,8 +94,6 @@ public class TankController : MonoBehaviour
         Vector3 deltaPosition = transform.position - lastPosition;
         lastPosition = transform.position;
 
-        // UpdateCamera();
-        // print(Input.GetMouseButton(0) + ":" + Input.GetMouseButton(1) + ":" + Input.GetMouseButton(2));
         if (Input.GetMouseButton(1)) {
             Cursor.lockState = CursorLockMode.Locked;
             cameraRotation.x += Input.GetAxis("Mouse X") * sensitivity;
@@ -87,20 +104,20 @@ public class TankController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
 
-
-        // transform.Find("camera").GetChild(0).transform.position = new Vector3(0, cameraHeight * (1 - Mathf.Clamp01(currentRotation.y / 40f)), 0);
-        // transform.Find("camera").GetChild(0).transform.localPosition = new Vector3(0, 1f * Mathf.Clamp01(cameraRotation.y / -40f), 0);
         transform.Find("camera").GetChild(0).transform.position = transform.Find("camera").position + (
-            new Vector3(0, 1f * Mathf.Clamp01(cameraRotation.y / -40f), 0)
+            new Vector3(0, 1.5f * Mathf.Clamp01(cameraRotation.y / -40f), 0)
         );
 
         transform.Find("camera").rotation = Quaternion.Euler(cameraRotation.y, cameraRotation.x, 0);
         Camera.main.transform.position += deltaPosition;
 
-        // state.targetPosition = virtualCamera.transform.position + (virtualCamera.transform.forward * 100);
+        Cinemachine3rdPersonFollow follow = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+        follow.CameraDistance = 4f + (1f * Mathf.Clamp(state.currentSpeed / config.maxSpeed, -1, 1));
+
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         state.targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 2);
 
-        // transform.Find("target").transform.position = state.targetPosition;
+        // DEBUG VISUALIZER
+        transform.Find("target").transform.position = state.targetPosition;
     }
 }

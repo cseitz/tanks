@@ -78,7 +78,7 @@ public class TankMovementController : MonoBehaviour
     void Update()
     {
         if (!Ready()) return;
-        
+
     }
 
     void FixedUpdate()
@@ -95,10 +95,6 @@ public class TankMovementController : MonoBehaviour
 
         UpdateAxis();
         UpdateTurret();
-
-        // UpdateTurret();
-        // FixedUpdateTurret();
-        // UpdateBarrel();
 
         for (int i = 0; i < wheelCount; ++i) {
             UpdateWheel(i);
@@ -156,9 +152,7 @@ public class TankMovementController : MonoBehaviour
         Quaternion rotation;
         collider.GetWorldPose(out position, out rotation);
         wheel.position = position;
-        wheel.rotation = rotation;
-        // TODO: remove turning from wheel rotation
-        // wheel.rotation = Quaternion.Euler(rotation.eulerAngles.x, transform.rotation.eulerAngles.y, rotation.eulerAngles.z);
+        wheel.rotation = Quaternion.AngleAxis(-collider.steerAngle, transform.up) * rotation;
         
     }
 
@@ -232,12 +226,14 @@ public class TankMovementController : MonoBehaviour
             barrelRelativeAngle = relativeAngle;
         }
 
+        float easingReduction = 4f;
+
         // Update Turret
         {
             float targetAngle = turretRelativeAngle;
             float magnitude = Mathf.Abs(targetAngle);
 
-            float easing = magnitude > config.maxTurretTurnSpeed ? 1 : 1 + (1 - Mathf.Min(0.5f, magnitude / config.maxTurretTurnSpeed));
+            float easing = magnitude > (config.maxTurretTurnSpeed / easingReduction) ? 1 : 1 + (1 - Mathf.Min(0.5f, magnitude / (config.maxTurretTurnSpeed / easingReduction)));
 
             float currentVelocity = hingeTurret.motor.targetVelocity;
             float desiredVelocity = Mathf.MoveTowardsAngle(currentVelocity, -targetAngle, config.maxTurretTurnSpeed * (easing * 1f)); //Time.fixedDeltaTime
@@ -257,7 +253,7 @@ public class TankMovementController : MonoBehaviour
             float targetAngle = barrelRelativeAngle;
             float magnitude = Mathf.Abs(targetAngle);
 
-            float easing = magnitude > config.maxBarrelTurnSpeed ? 1 : 1 + (1 - Mathf.Min(0.5f, magnitude / config.maxBarrelTurnSpeed));
+            float easing = magnitude > (config.maxBarrelTurnSpeed / easingReduction) ? 1 : 1 + (1 - Mathf.Min(0.5f, magnitude / (config.maxBarrelTurnSpeed / easingReduction)));
 
             float currentVelocity = hingeBarrel.motor.targetVelocity;
             float desiredVelocity = Mathf.MoveTowardsAngle(currentVelocity, -targetAngle, config.maxBarrelTurnSpeed * (easing * 1f)); //Time.fixedDeltaTime
@@ -273,12 +269,14 @@ public class TankMovementController : MonoBehaviour
         }
     }
 
+    // DEBUG VISUALIZER
     void setAxis(string axis, Vector3 direction, float angle = 0f)
     {
         Transform obj = transform.Find("axis").Find(axis);
         obj.LookAt(obj.position + direction * 10f);
     }
 
+    // DEBUG VISUALIZER
     void UpdateAxis() {
         Transform _axes = transform.Find("axis");
         _axes.position = turret.GetChild(0).position;

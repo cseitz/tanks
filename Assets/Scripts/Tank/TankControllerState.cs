@@ -28,6 +28,8 @@ public class TankControllerState : MonoBehaviour
     public Vector3 angularVelocity;
     public Quaternion rotation;
 
+    public bool invertedThrottle = false;
+
     [System.NonSerialized] private Rigidbody rb;
 
     // Start is called before the first frame update
