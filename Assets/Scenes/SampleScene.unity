@@ -355,11 +355,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 321909501}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cf3321201d3f55479e527f14a0fa500, type: 3}
+  m_Script: {fileID: 11500000, guid: 76d6d06f2324b764c81d992e8aa76322, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turret: {fileID: 2250952108541457917}
-  barrel: {fileID: 1525732788}
+  turret: {fileID: 379104070}
+  barrel: {fileID: 1462110362}
   lookAt: {x: 0, y: 0, z: 0}
 --- !u!1 &379104070
 GameObject:

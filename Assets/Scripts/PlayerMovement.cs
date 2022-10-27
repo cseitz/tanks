@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     private Rigidbody rb;
-    private TankController tank;
+    private OldTankController tank;
 
     [SerializeField]
     private GameObject Rotation;
@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        tank = GetComponent<TankController>();
+        tank = GetComponent<OldTankController>();
     }
 
     // Update is called once per frame

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TankController : MonoBehaviour
+public class OldTankController : MonoBehaviour
 {
     public GameObject turret;
     public GameObject barrel;
