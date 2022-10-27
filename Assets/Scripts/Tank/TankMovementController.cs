@@ -66,14 +66,25 @@ public class TankMovementController : MonoBehaviour
 
     }
 
+    bool Ready() {
+        if (!state) {
+            Start();
+            return false;
+        }
+        return true;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        if (!Ready()) return;
         
     }
 
     void FixedUpdate()
     {
+        if (!Ready()) return;
+
         state.currentSpeed = rb.velocity.magnitude;
         state.currentMovePotential = state.currentSpeed / config.maxSpeed;
 

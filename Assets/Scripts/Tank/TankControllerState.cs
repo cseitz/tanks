@@ -36,9 +36,19 @@ public class TankControllerState : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    bool Ready() {
+        if (!rb) {
+            Start();
+            return false;
+        }
+        return true;
+    }
+
     [System.NonSerialized] private bool applyFixedUpdate = false;
     public void Apply(string serializedState)
     {
+        if (!Ready()) return;
+
         JsonUtility.FromJsonOverwrite(serializedState, this);
         applyFixedUpdate = true;
     }
@@ -51,6 +61,8 @@ public class TankControllerState : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (!Ready()) return;
+
         position = transform.position;
         rotation = transform.rotation;
         velocity = rb.velocity;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 /** Tank Controller
  * Handles player input and client-only tank logic.
@@ -9,10 +10,12 @@ using UnityEngine;
 
 public class TankController : MonoBehaviour
 {
-    public Transform virtualCamera;
+    // public Transform virtualCamera;
 
     [System.NonSerialized] public TankControllerState state;
     [System.NonSerialized] public TankConfig config;
+
+    private CinemachineVirtualCamera virtualCamera;
 
     // Start is called before the first frame update
     void Start()
@@ -21,8 +24,17 @@ public class TankController : MonoBehaviour
         config = GetComponent<TankConfig>();
     }
 
+    bool Ready() {
+        if (!state) {
+            Start();
+            return false;
+        }
+        return true;
+    }
+
     void FixedUpdate()
     {
+        if (!Ready()) return;
 
         float iVertical = Input.GetAxis("Vertical");
         float iHorizontal = Input.GetAxis("Horizontal");
@@ -54,9 +66,15 @@ public class TankController : MonoBehaviour
     public float sensitivity = 2f / 10f;
     public float cameraHeight = 1f;
     private Vector2 cameraRotation;
+    private Vector3 lastPosition = Vector3.zero;
 
     void Update()
     {
+        if (!Ready()) return;
+
+        Vector3 deltaPosition = transform.position - lastPosition;
+        lastPosition = transform.position;
+
         // UpdateCamera();
         // print(Input.GetMouseButton(0) + ":" + Input.GetMouseButton(1) + ":" + Input.GetMouseButton(2));
         if (Input.GetMouseButton(1)) {
@@ -69,10 +87,15 @@ public class TankController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
 
+
         // transform.Find("camera").GetChild(0).transform.position = new Vector3(0, cameraHeight * (1 - Mathf.Clamp01(currentRotation.y / 40f)), 0);
-        transform.Find("camera").GetChild(0).transform.localPosition = new Vector3(0, 1f * Mathf.Clamp01(cameraRotation.y / -40f), 0);
+        // transform.Find("camera").GetChild(0).transform.localPosition = new Vector3(0, 1f * Mathf.Clamp01(cameraRotation.y / -40f), 0);
+        transform.Find("camera").GetChild(0).transform.position = transform.Find("camera").position + (
+            new Vector3(0, 1f * Mathf.Clamp01(cameraRotation.y / -40f), 0)
+        );
 
         transform.Find("camera").rotation = Quaternion.Euler(cameraRotation.y, cameraRotation.x, 0);
+        Camera.main.transform.position += deltaPosition;
 
         // state.targetPosition = virtualCamera.transform.position + (virtualCamera.transform.forward * 100);
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
