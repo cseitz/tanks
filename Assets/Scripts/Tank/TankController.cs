@@ -51,8 +51,8 @@ public class TankController : MonoBehaviour
         
         float dotP = Vector3.Dot(transform.Find("body").forward, Camera.main.gameObject.transform.forward);
         if (Mathf.Abs(state.currentSpeed / config.maxSpeed) <= 0.1f) {
-            state.invertedThrottle = dotP > 0.6f;
-            print(state.invertedThrottle);
+            state.invertedThrottle = dotP < -0.6f;
+            // print(state.invertedThrottle + " -> " + dotP);
         }
         if (state.invertedThrottle) {
             iVertical = -iVertical;
