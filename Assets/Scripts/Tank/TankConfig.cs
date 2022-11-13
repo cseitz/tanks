@@ -11,4 +11,8 @@ public class TankConfig : MonoBehaviour
 
     public float maxTurretTurnSpeed = 20f;
     public float maxBarrelTurnSpeed = 10f;
+
+    public float maxHealth = 100f;
+    public float healthRecovery = 20 / 60.0f;
+    public float healthRecoveryDelay = 20.0f;
 }

@@ -80,6 +80,10 @@ public class TankController : MonoBehaviour
             state.currentBreakForce = 0f;
         }
 
+        if (Input.GetMouseButton(0)) {
+            GetComponent<TankCombatController>().Shoot("mainGun");
+        }
+
     }
 
     public float sensitivity = 2f / 10f;
