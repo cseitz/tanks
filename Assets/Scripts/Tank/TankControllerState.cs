@@ -71,6 +71,9 @@ public class TankControllerState : MonoBehaviour
         JsonUtility.FromJsonOverwrite(serializedState, this);
         this.targetPosition += positionOffset;
         applyFixedUpdate = true;
+
+        // Apply health
+        GetComponent<EntityHealth>().health = health;
     }
 
     public string Serialize()

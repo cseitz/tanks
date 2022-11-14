@@ -22,6 +22,15 @@ public class TankParticles : MonoBehaviour
     }
 
     public void Explosion(string type, Vector3 pos, Quaternion rot = new Quaternion()) {
+        if (true) {
+            ExplosionManager.Spawn(new ExplosionConfig () {
+                type = "Big",
+                position = pos,
+                damage = 60.0f,
+                radius = 10.0f,
+            });
+            return;
+        }
         GameObject explosion = null;
         if (type == "dirt") {
             explosion = Instantiate(explosionDirt, pos, rot);

@@ -4,45 +4,57 @@ using UnityEngine;
 
 public class TankCombatController : MonoBehaviour
 {
+    private EntityHealth entityHealth;
     private TankControllerState state;
     private TankConfig config;
     private Rigidbody rb;
 
     public float health {
-        get { return state.health; }
-        set { state.health = value; }
+        get { return entityHealth.health; }
+        set { 
+            entityHealth.health = value;
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        entityHealth = GetComponent<EntityHealth>();
         state = GetComponent<TankControllerState>();
         config = GetComponent<TankConfig>();
         rb = GetComponent<Rigidbody>();
 
         health = config.maxHealth;
+        entityHealth.maxHealth = config.maxHealth;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    bool Ready() {
+        if (entityHealth == null) {
+            Start();
+            return false;
+        }
+        return true;
     }
 
+    private float lastHealth = 0.0f;
     void FixedUpdate()
     {
-        state.deltaSinceDamage += Time.fixedDeltaTime;
-        if (state.deltaSinceDamage > config.healthRecoveryDelay) {
-            health += config.healthRecovery * Time.fixedDeltaTime;
-        }
-    }
+        Ready();
 
-    public void takeDamage(float damage)
-    {
-        health -= damage;
-        if (health < 0) {
-            // TODO: kill
+        if (health < lastHealth) {
+            state.deltaSinceDamage = 0.0f;
         }
+
+        state.deltaSinceDamage += Time.fixedDeltaTime;
+        if (health < config.maxHealth && state.deltaSinceDamage > config.healthRecoveryDelay) {
+            health += config.healthRecovery * Time.fixedDeltaTime;
+            if (health > config.maxHealth) {
+                health = config.maxHealth;
+            }
+        }
+
+        state.health = health;
+        lastHealth = health;
     }
 
     public void Shoot(string type) {

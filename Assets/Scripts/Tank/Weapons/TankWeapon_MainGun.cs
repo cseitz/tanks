@@ -41,8 +41,19 @@ public class TankWeapon_MainGun : TankWeapon
             RaycastHit hit;
             if (Raycast(out hit, barrel.transform.position, barrel.transform.forward)) {
             // if (Raycast(out hit, ray.origin, ray.direction)) {
-                print("hit something");
-                GetComponent<TankParticles>().Explosion("dirt", hit.point);
+                EntityHealth entityHealth = null;
+                if (hit.rigidbody != null) {
+                    print("hit " + hit.rigidbody.gameObject.ToString());
+                    hit.rigidbody.gameObject.TryGetComponent<EntityHealth>(out entityHealth);
+                }
+                string type = entityHealth != null ? "Small" : "Ground";
+                print("explosion type: " + type);
+                ExplosionManager.Spawn(new ExplosionConfig () {
+                    type = type,
+                    position = hit.point,
+                    damage = 60.0f,
+                    radius = 2.0f,
+                });
             }
 
             // TODO: calculate target position by deriving it from (camera * root:inverse()) * turretRotation
