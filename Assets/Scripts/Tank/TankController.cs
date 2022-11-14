@@ -119,9 +119,9 @@ public class TankController : MonoBehaviour
         follow.CameraDistance = 4f + (1f * Mathf.Clamp(state.currentSpeed / config.maxSpeed, -1, 1));
 
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        state.targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 2);
+        state.targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 2000);
 
         // DEBUG VISUALIZER
-        transform.Find("target").transform.position = state.targetPosition;
+        // transform.Find("target").transform.position = state.targetPosition;
     }
 }

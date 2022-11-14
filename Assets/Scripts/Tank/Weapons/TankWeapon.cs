@@ -30,7 +30,10 @@ public abstract class TankWeapon : MonoBehaviour
 
     public abstract void Shoot();
 
-    public virtual void Raycast(Vector3 from, Vector3 to) {
-        // TODO: implement raycasting
+    public virtual bool Raycast(out RaycastHit hit, Vector3 from, Vector3 direction) {
+        if (Physics.Raycast(from, direction.normalized, out hit, Mathf.Infinity)) {
+            return true;
+        }
+        return false;
     }
 }

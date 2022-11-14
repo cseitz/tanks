@@ -10,6 +10,8 @@ public class TankWeapon_MainGun : TankWeapon
     public float firerate = 10 / 60.0f;
     public float bulletSpeed = 10f;
 
+    public GameObject barrel;
+
     // Start is called before the first frame update
     public override void Start()
     {
@@ -33,7 +35,20 @@ public class TankWeapon_MainGun : TankWeapon
             cooldown += 1 / firerate;
             print("Shot main gun");
             // Instantiate(GetComponent<TankParticles>().explosionDirt, Vector3.zero + new Vector3(0, 10, 0), Quaternion.identity);
-            GetComponent<TankParticles>().Explosion("dirt", new Vector3(3, 0, 14));
+            // GetComponent<TankParticles>().Explosion("dirt", new Vector3(3, 0, 14));
+            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            // state.targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 2);
+            RaycastHit hit;
+            if (Raycast(out hit, barrel.transform.position, barrel.transform.forward)) {
+            // if (Raycast(out hit, ray.origin, ray.direction)) {
+                print("hit something");
+                GetComponent<TankParticles>().Explosion("dirt", hit.point);
+            }
+
+            // TODO: calculate target position by deriving it from (camera * root:inverse()) * turretRotation
+            // use same math as earlier for calculating turret end position
+            // except we calculate where the target would be based on where we want to be and how rotated we are
+
         }
     }
 }

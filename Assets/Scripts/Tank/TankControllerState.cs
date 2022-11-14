@@ -69,6 +69,7 @@ public class TankControllerState : MonoBehaviour
         if (!Ready()) return;
 
         JsonUtility.FromJsonOverwrite(serializedState, this);
+        this.targetPosition += positionOffset;
         applyFixedUpdate = true;
     }
 
@@ -100,5 +101,8 @@ public class TankControllerState : MonoBehaviour
         angularVelocity = rb.angularVelocity;
         turretRotation = rotatorTurret.localRotation;
         barrelRotation = rotatorBarrel.localRotation;
+
+        // DEBUG VISUALIZER
+        // transform.Find("target").transform.position = targetPosition;
     }
 }

@@ -2758,6 +2758,7 @@ MonoBehaviour:
   damage: 60
   firerate: 0.16666667
   bulletSpeed: 10
+  barrel: {fileID: 0}
 --- !u!95 &8226747583554168612
 Animator:
   serializedVersion: 3
