@@ -118,8 +118,13 @@ public class TankController : MonoBehaviour
         Cinemachine3rdPersonFollow follow = virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         follow.CameraDistance = 4f + (1f * Mathf.Clamp(state.currentSpeed / config.maxSpeed, -1, 1));
 
+        RaycastHit hit;
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        state.targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 2000);
+        Vector3 targetPosition = ray.origin + ray.direction * ((transform.position - ray.origin).magnitude * 3f);
+        if (Physics.Raycast(ray.origin, ray.direction, out hit)) {
+            targetPosition = hit.point;
+        }
+        state.targetPosition = targetPosition;
 
         // DEBUG VISUALIZER
         // transform.Find("target").transform.position = state.targetPosition;

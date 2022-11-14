@@ -17,8 +17,6 @@ public class ExplosionController : MonoBehaviour
         transform.localScale = transform.localScale * scale;
         particles = GetComponent<ParticleSystem>();
         Destroy(this.gameObject, particles.main.duration - Time.fixedDeltaTime);
-        // var main = particles.main;
-        // main.loop = false;
         Explode();
     }
 

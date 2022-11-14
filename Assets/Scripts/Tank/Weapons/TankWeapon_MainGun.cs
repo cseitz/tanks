@@ -34,6 +34,24 @@ public class TankWeapon_MainGun : TankWeapon
         if (cooldown == 0) {
             cooldown += 1 / firerate;
             print("Shot main gun");
+
+            Vector3 up = transform.up;
+            Vector3 startPosition = barrel.transform.position;
+            
+            Ray _targetRay = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            Vector3 targetPosition = state.targetPosition = _targetRay.origin + _targetRay.direction * 100f;
+
+            RaycastHit _targetHit;
+            if (Raycast(out _targetHit, _targetRay.origin, _targetRay.direction)) {
+                targetPosition = _targetHit.point;
+            }
+
+            Vector3 barrelDirection = barrel.transform.forward;
+            Vector3 targetDirection = (targetPosition - startPosition).normalized;
+
+            // print(barrelDirection + " -> " + targetDirection);
+
+
             // Instantiate(GetComponent<TankParticles>().explosionDirt, Vector3.zero + new Vector3(0, 10, 0), Quaternion.identity);
             // GetComponent<TankParticles>().Explosion("dirt", new Vector3(3, 0, 14));
             Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
