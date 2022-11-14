@@ -18,7 +18,16 @@ public abstract class TankWeapon : MonoBehaviour
         config = GetComponent<TankConfig>();
     }
 
+    public bool _Ready() {
+        if (state == null) {
+            Start();
+            return false;
+        }
+        return true;
+    }
+
     public virtual void Update() {
+        _Ready();
         if (cooldown > 0) {
             cooldown -= Time.deltaTime;
             if (cooldown < 0) {
@@ -26,6 +35,10 @@ public abstract class TankWeapon : MonoBehaviour
                 print("ready to shoot " + _weaponName + " again");
             }
         }
+    }
+
+    public virtual void FixedUpdate() {
+        _Ready();
     }
 
     public abstract void Shoot();

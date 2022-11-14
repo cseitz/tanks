@@ -17,6 +17,14 @@ public class TankWeapon_MainGun : TankWeapon
     {
         base.Start();
         base._weaponName = weaponName;
+        if (barrel != null) {
+            Transform steamEmitter = barrel.transform.Find("steam");
+            if (steamEmitter != null) {
+                ParticleSystem steam = steamEmitter.GetComponent<ParticleSystem>();
+                steam.Clear();
+                steam.Stop();
+            }
+        }
     }
 
     public override void Update()
@@ -24,15 +32,39 @@ public class TankWeapon_MainGun : TankWeapon
         base.Update();
     }
 
+
     // Update is called once per frame
-    void FixedUpdate()
+    public override void FixedUpdate()
     {
-        
+        base.FixedUpdate();
+        base.state.deltaSinceMainGunShoot += Time.fixedDeltaTime;
+        float delta = base.state.deltaSinceMainGunShoot;
+
+        if (barrel != null) {
+            Transform steamEmitter = barrel.transform.Find("steam");
+            if (steamEmitter != null) {
+                ParticleSystem steam = steamEmitter.GetComponent<ParticleSystem>();
+                var emission = steam.emission;
+                emission.enabled = delta <= 5f;
+                emission.rateOverTime = 20f * Mathf.Clamp01((2f - delta) / 1f);
+                emission.rateOverDistance = emission.rateOverTime;
+                if (!steam.isPlaying && emission.enabled) {
+                    steam.Play();
+                }
+            }
+
+            // Transform flashEmitter = barrel.transform.Find("steam");
+            // if (flashEmitter != null) {
+            //     ParticleSystem flash = flashEmitter.GetComponent<ParticleSystem>();
+            //     flash.Emit(1);
+            // }
+        }
     }
 
     public override void Shoot() {
         if (cooldown == 0) {
             cooldown += 1 / firerate;
+            base.state.deltaSinceMainGunShoot = 0f;
             print("Shot main gun");
 
             Vector3 up = transform.up;

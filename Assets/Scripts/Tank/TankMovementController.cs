@@ -29,6 +29,8 @@ public class TankMovementController : MonoBehaviour
 
     private Rigidbody rb;
 
+    private bool dead = false;
+
     
 
     // Start is called before the first frame update
@@ -85,6 +87,13 @@ public class TankMovementController : MonoBehaviour
     {
         if (!Ready()) return;
 
+        if (state.health <= 0) {
+            if (!dead) {
+                dead = true;
+                // TODO: set colliders spring dist to 0.8
+            }
+        }
+
         state.currentSpeed = rb.velocity.magnitude;
         state.currentMovePotential = state.currentSpeed / config.maxSpeed;
 
@@ -115,6 +124,12 @@ public class TankMovementController : MonoBehaviour
             movingAngle = state.currentTurnAngle * 0.5f;
         } else {
             movingAngle = -state.currentTurnAngle * 0.5f;
+        }
+
+        if (dead) {
+            var spring = collider.suspensionSpring;
+            spring.targetPosition = 0.8f;
+            collider.suspensionSpring = spring;
         }
 
         float restingAngle = 0f;
@@ -241,7 +256,7 @@ public class TankMovementController : MonoBehaviour
 
             JointMotor motor = hingeTurret.motor;
             motor.force = 1;
-            motor.targetVelocity = targetVelocity;
+            motor.targetVelocity = dead ? 0 : targetVelocity;
             motor.freeSpin = false;
 
             hingeTurret.motor = motor;
@@ -260,8 +275,8 @@ public class TankMovementController : MonoBehaviour
             float targetVelocity = Mathf.Clamp(desiredVelocity, -config.maxBarrelTurnSpeed, config.maxBarrelTurnSpeed);
 
             JointMotor motor = hingeBarrel.motor;
-            motor.force = 1;
-            motor.targetVelocity = -targetVelocity;
+            motor.force = dead ? 100 : 1;
+            motor.targetVelocity = dead ? -100 : -targetVelocity;
             motor.freeSpin = false;
 
             hingeBarrel.motor = motor;

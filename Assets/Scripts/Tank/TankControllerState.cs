@@ -32,8 +32,10 @@ public class TankControllerState : MonoBehaviour
 
     public bool invertedThrottle = false;
 
-    public float health;
+    public float health = 100f;
     public float deltaSinceDamage = 0f;
+
+    public float deltaSinceMainGunShoot = 100f;
 
     [System.NonSerialized] private Rigidbody rb;
     [System.NonSerialized] private Transform turret;

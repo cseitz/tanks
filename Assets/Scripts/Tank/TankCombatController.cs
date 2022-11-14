@@ -9,6 +9,8 @@ public class TankCombatController : MonoBehaviour
     private TankConfig config;
     private Rigidbody rb;
 
+    public bool dead = false;
+
     public float health {
         get { return entityHealth.health; }
         set { 
@@ -46,7 +48,7 @@ public class TankCombatController : MonoBehaviour
         }
 
         state.deltaSinceDamage += Time.fixedDeltaTime;
-        if (health < config.maxHealth && state.deltaSinceDamage > config.healthRecoveryDelay) {
+        if (state.deltaSinceDamage > config.healthRecoveryDelay && health < config.maxHealth && !dead) {
             health += config.healthRecovery * Time.fixedDeltaTime;
             if (health > config.maxHealth) {
                 health = config.maxHealth;
@@ -55,6 +57,19 @@ public class TankCombatController : MonoBehaviour
 
         state.health = health;
         lastHealth = health;
+
+        if (health <= 0) {
+            if (!dead) {
+                dead = true;
+                transform.Find("effects").Find("destroyed").gameObject.SetActive(true);
+                ExplosionManager.Spawn(new ExplosionConfig () {
+                    type = "Big",
+                    position = transform.position,
+                    damage = 30.0f,
+                    radius = 4.0f,
+                });
+            }
+        }
     }
 
     public void Shoot(string type) {

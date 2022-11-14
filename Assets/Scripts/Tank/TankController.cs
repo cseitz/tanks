@@ -45,6 +45,7 @@ public class TankController : MonoBehaviour
     void FixedUpdate()
     {
         if (!Ready()) return;
+        if (state.health <= 0) return;
 
         float iVertical = Input.GetAxis("Vertical");
         float iHorizontal = Input.GetAxis("Horizontal");
