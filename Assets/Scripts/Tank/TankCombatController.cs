@@ -84,4 +84,8 @@ public class TankCombatController : MonoBehaviour
             weapon.Shoot();
         }
     }
+
+    void Respawn() {
+        
+    }
 }
