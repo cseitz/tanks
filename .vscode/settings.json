@@ -53,6 +53,8 @@
 		"Obj/":true,
 		"ProjectSettings/":true,
 		"temp/":true,
-		"Temp/":true
+		"Temp/":true,
+		"**/package-lock.json": true,
+		"**/node_modules": true,
 	}
 }

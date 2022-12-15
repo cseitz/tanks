@@ -22,6 +22,7 @@ public class ExplosionManager : MonoBehaviour
 
     public ExplosionEntry[] types;
     private Dictionary<string, ExplosionEntry> _types;
+    private Stack<string> _ids;
 
     public static ExplosionManager Instance { get; private set; }
 
@@ -30,6 +31,7 @@ public class ExplosionManager : MonoBehaviour
     {
         Instance = this;
         _types = new Dictionary<string, ExplosionEntry>();
+        _ids = new Stack<string>();
         for (int i = 0; i < types.Length; ++i) {
             _types.Add(types[i].name, types[i]);
         }
@@ -63,8 +65,15 @@ public class ExplosionManager : MonoBehaviour
         controller.damage = config.damage;
         controller.id = config.id;
 
+        _ids.Push(config.id);
+        if (_ids.Count > 20) {
+            _ids.Pop();
+        }
+
         if (replicate) {
             EntityReplicator.Instance.explosions.Add(config);
+        } else {
+            EntityReplicator.Instance.explosions.Remove(config);
         }
 
         return obj;
@@ -73,7 +82,7 @@ public class ExplosionManager : MonoBehaviour
     public static void Replicate(ExplosionConfig[] replicatedExplosions) {
         for (int i = 0; i < replicatedExplosions.Length; ++i) {
             ExplosionConfig e = replicatedExplosions[i];
-            if (Instance.transform.Find(e.id) == null) {
+            if (Instance.transform.Find(e.id) == null && !Instance._ids.Contains(e.id)) {
                 Instance._spawn(e);
             }
         }

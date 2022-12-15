@@ -4949,7 +4949,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1453748162404664629}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee5d70371f85334429daac9ac65c42aa, type: 3}
   m_Name: 
@@ -4968,6 +4968,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 360fbb7b6cba68a46bc48b7099dac4c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 
   currentAcceleration: 0
   currentBreakForce: 0
   currentTurnAngle: 0
@@ -4982,9 +4983,9 @@ MonoBehaviour:
   turretRotation: {x: 0, y: 0, z: 0, w: 0}
   barrelRotation: {x: 0, y: 0, z: 0, w: 0}
   invertedThrottle: 0
-  health: 0
+  health: 100
   deltaSinceDamage: 0
-  deltaSinceMainGunShoot: 0
+  deltaSinceMainGunShoot: 100
 --- !u!114 &1453748162404664618
 MonoBehaviour:
   m_ObjectHideFlags: 0

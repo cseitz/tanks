@@ -7,10 +7,11 @@ using UnityEngine;
  * This state is serialized and sent to other players so the tank can be replicated in multiplayer
 */
 
-
 public class TankControllerState : MonoBehaviour
 {
-     [System.NonSerialized] public Vector3 positionOffset = Vector3.zero;
+    [System.NonSerialized] public Vector3 positionOffset = Vector3.zero;
+
+    public string id = "";
 
     public float currentAcceleration = 0f;
     public float currentBreakForce = 0f;
@@ -48,6 +49,10 @@ public class TankControllerState : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (id.Length == 0) {
+            id = System.Guid.NewGuid().ToString();
+        }
+        transform.name = "tank_" + id;
         rb = GetComponent<Rigidbody>();
         turret = transform.Find("body").Find("turret_hinge");
         barrel = turret.Find("turret_base").Find("turret").Find("barrel_hinge");
@@ -73,6 +78,7 @@ public class TankControllerState : MonoBehaviour
         JsonUtility.FromJsonOverwrite(serializedState, this);
         this.targetPosition += positionOffset;
         applyFixedUpdate = true;
+        transform.name = "tank_" + id;
 
         // Apply health
         GetComponent<EntityHealth>().health = health;

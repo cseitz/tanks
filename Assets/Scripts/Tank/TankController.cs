@@ -17,20 +17,26 @@ public class TankController : MonoBehaviour
     private CinemachineBrain brainVirtualCamera;
     private CinemachineVirtualCamera virtualCamera;
 
+    public static TankController Instance { get; private set; }
+
     // Start is called before the first frame update
     void Start()
     {
         state = GetComponent<TankControllerState>();
         config = GetComponent<TankConfig>();
+        Instance = this;
 
         brainVirtualCamera = Camera.main.GetComponent<CinemachineBrain>();
         try {
             if (brainVirtualCamera != null && brainVirtualCamera.ActiveVirtualCamera != null) {
                 if (brainVirtualCamera.ActiveVirtualCamera.VirtualCameraGameObject != null) {
                     virtualCamera = brainVirtualCamera.ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
+                    virtualCamera.Follow = transform.Find("camera").Find("offset").Find("follow");
+                    virtualCamera.LookAt = transform.Find("camera").Find("offset").Find("look");
                 }
             }
         } catch(UnityException err) {
+            Debug.Log(err.ToString());
         }
     }
 
@@ -42,10 +48,13 @@ public class TankController : MonoBehaviour
         return true;
     }
 
+    public float lifetime = 0.0f;
+
     void FixedUpdate()
     {
         if (!Ready()) return;
         if (state.health <= 0) return;
+        lifetime += Time.fixedDeltaTime;
 
         float iVertical = Input.GetAxis("Vertical");
         float iHorizontal = Input.GetAxis("Horizontal");
@@ -75,7 +84,7 @@ public class TankController : MonoBehaviour
             (0.1f * config.maxTurnAngle) + (0.9f * (config.maxTurnAngle - state.currentTurnAngle))
         );
 
-        if (Input.GetKey(KeyCode.Space)) {
+        if (Input.GetKey(KeyCode.Space) || lifetime <= 1.0f) {
             state.currentBreakForce = config.breakingForce;
         } else {
             state.currentBreakForce = 0f;
@@ -129,5 +138,9 @@ public class TankController : MonoBehaviour
 
         // DEBUG VISUALIZER
         // transform.Find("target").transform.position = state.targetPosition;
+    }
+
+    public void OnDeath() {
+        TankManager.Instance.RequestRespawn(5);
     }
 }

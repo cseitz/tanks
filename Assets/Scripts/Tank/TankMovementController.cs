@@ -83,15 +83,20 @@ public class TankMovementController : MonoBehaviour
 
     }
 
+    private float previousHealth = 0;
     void FixedUpdate()
     {
         if (!Ready()) return;
 
-        if (state.health <= 0) {
+        if (state.health <= 0 && previousHealth > 0) {
             if (!dead) {
                 dead = true;
-                // TODO: set colliders spring dist to 0.8
+                if (GetComponent<TankController>().enabled) {
+                    GetComponent<TankController>().OnDeath();
+                }
             }
+        } else {
+            previousHealth = state.health;
         }
 
         state.currentSpeed = rb.velocity.magnitude;
