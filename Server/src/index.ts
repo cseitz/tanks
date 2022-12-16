@@ -7,14 +7,6 @@ server.get('/ping', (req, res) => {
     res.send(new Date().toString())
 })
 
-
-// const serverState: Partial<EntitySyncPacket> = {
-//     explosions: [],
-//     tanks: [],
-//     tank: null,
-// }
-
-
 function getDate(add?: number) {
     const date = new Date();
     if (add) {
@@ -37,9 +29,8 @@ class EntitySyncState {
             this.explosions.set(state.id, state);
         } else if (type === 'tank') {
             this.lifetime.set(state.id, getDate(5000));
-            // TODO: remove debug offset
-            state.position.x += 2;
-            state.targetPosition.x += 2;
+            // state.position.x += 2;
+            // state.targetPosition.x += 2;
             // state.id = state.id + '_copy';
             this.tanks.set(state.id, state);
         }
@@ -62,16 +53,10 @@ class EntitySyncState {
     }
 
     public serialize() {
-        const now = this.clean();
+        this.clean();
         return {
-            // time: now,
             explosions: Array.from(this.explosions.values()),
-            // tanks: Array.from(this.tanks.values()),
             tanks: Array.from(this.tanks.entries()).map(([id, state]) => ({ id, state: JSON.stringify(state) })),
-            // tanks: ['wtf']
-            // tanks: [{
-            //     '123': '456',
-            // }]
         }
     }
 }
@@ -80,7 +65,6 @@ const serverState = new EntitySyncState();
 
 server.post('/entity/sync', express.json(), (req, res) => {
     const payload = req.body;
-    // console.log('up', payload);
     (payload.explosions || []).forEach(explosion => (
         serverState.set('explosion', explosion)
     ));
@@ -89,9 +73,7 @@ server.post('/entity/sync', express.json(), (req, res) => {
     }
     const serialized = serverState.serialize();
     serialized.tanks = serialized.tanks.filter(o => o.id != payload?.tank?.id);
-    // console.log('down', serialized);
     res.json({
         ...serialized,
-        // tank: {},
     });
 })

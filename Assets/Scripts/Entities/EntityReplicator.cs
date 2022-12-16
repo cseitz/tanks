@@ -75,7 +75,7 @@ public class EntityReplicator : MonoBehaviour
 
     // https://stackoverflow.com/questions/46003824/sending-http-requests-in-c-sharp-with-unity
     IEnumerator Sync() {
-        var req = new UnityWebRequest("http://localhost:6080/entity/sync", "POST");
+        var req = new UnityWebRequest("http://ssh.seitz.sh:6080/entity/sync", "POST");
         byte[] payload = new System.Text.UTF8Encoding().GetBytes(Serialize());
         req.uploadHandler = (UploadHandler) new UploadHandlerRaw(payload);
         req.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
