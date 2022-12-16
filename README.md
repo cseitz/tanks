@@ -4,6 +4,17 @@
 - Lists assigned tickets for each iteration
 - Completed and imcomplete tickets
 
+## Controls
+
+When operating the tank, the controls are as follows
+- Use `W` and `S` to control the throttle for your tank
+- `A` and `D` control the steering for your tank
+- Holding `SPACE` engages your tank’s breaks, ensuring it doesn’t roll on surfaces or come to a quick stop.
+Depending on the direction of your camera, your throttle may be inverted to move the tank in your look direction as compared to the actual forward direction of your tank itself.
+- Holding the `RIGHT MOUSE` button while moving your mouse will lock your mouse to the center, allowing you to look around. This is how you adjust your camera and the target vector of the tank’s main gun.
+- Pressing the `LEFT MOUSE` button will trigger your tank to fire its main gun, subsequently engaging a cooldown before it may fire again.
+
+
 ## Videos
 
 ### Aiming & Driving
