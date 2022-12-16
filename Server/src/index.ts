@@ -73,6 +73,7 @@ server.post('/entity/sync', express.json(), (req, res) => {
     }
     const serialized = serverState.serialize();
     serialized.tanks = serialized.tanks.filter(o => o.id != payload?.tank?.id);
+    // console.log('tanks', serialized.tanks.length, serialized.tanks.map(o => o.id));
     res.json({
         ...serialized,
     });

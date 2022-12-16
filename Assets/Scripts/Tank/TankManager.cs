@@ -21,7 +21,7 @@ public class TankManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (Instance == null) {
+        if (Instance != null) {
             Instance = this;
         }
         Transform tankSpawns = GameObject.Find("Spawns").transform.Find("Tanks").transform;
@@ -32,17 +32,19 @@ public class TankManager : MonoBehaviour
     }
 
     void Awake() {
-        if (Instance == null) {
+        if (Instance == null || Instance.gameObject == null) {
             Instance = this;
         }
     }
 
-
     private float destroyCooldown = 0;
+    private float replicateElapsed = 0;
 
     // Update is called once per frame
     void Update()
     {
+        Awake();
+        replicateElapsed += Time.deltaTime;
         if (destroyCooldown > 0) {
             destroyCooldown -= Time.deltaTime;
             if (destroyCooldown < 0) {
@@ -51,43 +53,124 @@ public class TankManager : MonoBehaviour
         }
     }
 
-    public static void Replicate(List<TankServerStateEntry> replicatedTanks) {
+    private Dictionary<string, float> pendingDeletes = new Dictionary<string, float>();
+    private List<string> replicatedTankIds = new List<string>();
+    public void Replicate(List<TankServerStateEntry> replicatedTanks) {
+        if (gameObject == null) return;
+        float elapsed = replicateElapsed + 0;
+        replicateElapsed = 0;
         var ids = new List<string>();
+        // print("replicated tank count: " + replicatedTanks.Count);
         for (int i = 0; i < replicatedTanks.Count; ++i) {
             var e = replicatedTanks[i];
-            ids.Add("tank_" + e.id);
-            if (tanks.ContainsKey(e.id)) {
-                tanks[e.id].Apply(e.state);
+            Transform found = Instance.transform.Find("tank_" + e.id);
+            ids.Add(e.id);
+            // print("running tank " + e.id);
+            if (found != null) {
+                if (found.gameObject.activeInHierarchy) {
+                    TankControllerState state;
+                    if (found.TryGetComponent(out state)) {
+                        state.Apply(e.state);
+                        state.id = e.id;
+                    }
+                }
             } else {
+                if (replicatedTankIds.Contains(e.id)) continue;
                 // spawn tank
                 Debug.Log("need to create tank: " + e.id);
-                var tank = Instantiate(Instance.PrefabTank, Vector3.zero, Quaternion.identity, Instance.transform);
+                replicatedTankIds.Add(e.id);
+                var tank = Instantiate(PrefabTank, Vector3.zero, Quaternion.identity, transform);
                 var state = tank.GetComponent<TankControllerState>();
-                tanks.Add(e.id, state);
+                // tanks.Add(e.id, state);
                 state.Apply(e.state);
+                state.id = e.id;
+            }
+            float value;
+            if (pendingDeletes.TryGetValue(e.id, out value)) {
+                pendingDeletes.Remove(e.id);
+            }
+            // if (tanks.ContainsKey(e.id)) {
+            //     Transform found = Instance.transform.Find("tank_" + e.id);
+            //     if (found != null && found.gameObject.activeInHierarchy) {
+            //         TankControllerState state;
+            //         if (found.TryGetComponent(out state)) {
+            //             state.Apply(e.state);
+            //             ids.Add(e.id);
+            //         }
+            //     }
+            // } else {
+            //     // spawn tank
+            //     Debug.Log("need to create tank: " + e.id);
+            //     var tank = Instantiate(Instance.PrefabTank, Vector3.zero, Quaternion.identity, Instance.transform);
+            //     var state = tank.GetComponent<TankControllerState>();
+            //     tanks.Add(e.id, state);
+            //     state.Apply(e.state);
+            //     ids.Add(e.id);
+            // }
+        }
+        if (Instance != null && Instance.currentTankId != null) {
+            ids.Add(Instance.currentTankId);
+            float value;
+            if (pendingDeletes.TryGetValue(Instance.currentTankId, out value)) {
+                pendingDeletes.Remove(Instance.currentTankId);
             }
         }
-        if (Instance && Instance.currentTank && Instance.destroyCooldown <= 0) {
-            foreach (Transform child in Instance.transform) {
-                if (child.name.StartsWith("tank_") && !ids.Contains(child.name)) {
-                    if (!child.GetComponent<TankController>().enabled && child.name != Instance.currentTank.name) {
-                        if (child.GetComponent<EntityHealth>().health <= 0) {
+        foreach (Transform child in transform) {
+            if (!child.name.StartsWith("tank_")) continue;
+            var __name = new List<string>(child.name.Split('_'));
+            string id = __name[__name.Count - 1];
+            float value;
+            // print(pendingDeletes.ContainsKey(id) + ": " + id);
+            if (!ids.Contains(id)) {
+                if (pendingDeletes.TryGetValue(id, out value)) {
+                    // print("oh no incrementing " + id);
+                    pendingDeletes[id] += elapsed;
+                    if (pendingDeletes[id] > 20) {
+                        TankController controller;
+                        bool ok = true;
+                        if (child.gameObject.TryGetComponent(out controller)) {
+                            if (controller.isActiveAndEnabled) {
+                                ok = false;
+                            }
+                        }
+                        if (ok) {
                             print("destroy " + child.name);
                             Destroy(child.gameObject);
                         }
                     }
+                } else {
+                    pendingDeletes.Add(id, elapsed);
                 }
             }
         }
+        // foreach (string id in ids) {
+        //     pendingDeletes.Remove(id);
+        // }
+        // if (Instance && Instance.currentTank && Instance.destroyCooldown <= 0) {
+        //     foreach (Transform child in Instance.transform) {
+        //         if (child.name.StartsWith("tank_") && !ids.Contains(child.name)) {
+        //             if (!child.GetComponent<TankController>().enabled && child.name != Instance.currentTank.name) {
+        //                 if (child.GetComponent<EntityHealth>().health <= 0) {
+        //                     print("destroy " + child.name);
+        //                     Destroy(child.gameObject);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
-    private GameObject currentTank;
+    public GameObject currentTank;
+    private string currentTankId;
     public static void Spawn() {
         Instance.destroyCooldown += 5;
+        var id = System.Guid.NewGuid().ToString();
         var spawn = TankSpawns[Random.Range(0, TankSpawns.Count)];
         var tank = Instantiate(Instance.PrefabTank, spawn.position, spawn.rotation, Instance.transform);
         tank.GetComponent<TankController>().enabled = true;
+        tank.GetComponent<TankControllerState>().id = id;
         Instance.currentTank = tank;
+        Instance.currentTankId = id;
         // Instance.transform.SetParent(Instance.transform);
     }
 

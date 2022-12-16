@@ -10,7 +10,7 @@ public class EntityReplicator : MonoBehaviour
     public List<ExplosionConfig> explosions = new List<ExplosionConfig>();
     [System.NonSerialized] public List<TankControllerState> tanks = new List<TankControllerState>();
 
-    [System.NonSerialized] private float syncRate = 1 / 10;
+    [System.NonSerialized] private float syncRate = 1 / 5; //10;
     [System.NonSerialized] private float deltaSync = 0;
 
     [System.Serializable]
@@ -45,17 +45,25 @@ public class EntityReplicator : MonoBehaviour
     {
         var state = JsonUtility.FromJson<EntityServerSyncState>(serializedState);
         ExplosionManager.Replicate(state.explosions.ToArray());
-        TankManager.Replicate(state.tanks);
+        if (TankManager.Instance != null) TankManager.Instance.Replicate(state.tanks);
     }
 
     public string Serialize()
     {
         string entities = JsonUtility.ToJson(Instance);
         string tank = "null";
-        if (TankController.Instance) {
-            TankController Tank = TankController.Instance;
-            tank = Tank != null ? Tank.GetComponent<TankControllerState>().Serialize() : "null";
+        if (TankManager.Instance != null) {
+            if (TankManager.Instance.currentTank != null) {
+                TankControllerState state;
+                if (TankManager.Instance.currentTank.TryGetComponent(out state)) {
+                    tank = state.Serialize();
+                }
+            }
         }
+        // if (TankController.Instance) {
+        //     TankController Tank = TankController.Instance;
+        //     tank = Tank != null ? Tank.GetComponent<TankControllerState>().Serialize() : "null";
+        // }
         return "{\"tank\":" + tank + "," + entities.Substring(1);
     }
 
@@ -76,6 +84,7 @@ public class EntityReplicator : MonoBehaviour
     // https://stackoverflow.com/questions/46003824/sending-http-requests-in-c-sharp-with-unity
     IEnumerator Sync() {
         var req = new UnityWebRequest("http://ssh.seitz.sh:6080/entity/sync", "POST");
+        // var req = new UnityWebRequest("http://localhost:6080/entity/sync", "POST");
         byte[] payload = new System.Text.UTF8Encoding().GetBytes(Serialize());
         req.uploadHandler = (UploadHandler) new UploadHandlerRaw(payload);
         req.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();

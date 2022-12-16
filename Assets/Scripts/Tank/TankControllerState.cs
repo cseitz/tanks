@@ -49,10 +49,10 @@ public class TankControllerState : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (gameObject == null) return;
         if (id.Length == 0) {
-            id = System.Guid.NewGuid().ToString();
+            // id = System.Guid.NewGuid().ToString();
         }
-        transform.name = "tank_" + id;
         rb = GetComponent<Rigidbody>();
         turret = transform.Find("body").Find("turret_hinge");
         barrel = turret.Find("turret_base").Find("turret").Find("barrel_hinge");
@@ -78,7 +78,6 @@ public class TankControllerState : MonoBehaviour
         JsonUtility.FromJsonOverwrite(serializedState, this);
         this.targetPosition += positionOffset;
         applyFixedUpdate = true;
-        transform.name = "tank_" + id;
 
         // Apply health
         GetComponent<EntityHealth>().health = health;
@@ -93,6 +92,7 @@ public class TankControllerState : MonoBehaviour
     void FixedUpdate()
     {
         if (!Ready()) return;
+        transform.name = "tank_" + id;
 
         if (applyFixedUpdate)
         {
